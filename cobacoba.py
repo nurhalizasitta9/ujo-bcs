@@ -1,76 +1,26 @@
+from base64 import b64encode
+from fpdf import FPDF
 import streamlit as st
-import math
 
-st.write("""
-# Aplikasi Uang Jalan Operasional
-## Selamat Datang!
-Ini adalah aplikasi menghitung uang jalan operasional PT. Buana Centra Swakarsa 
+st.title("Demo of fpdf2 usage with streamlit")
 
-note: angka ribuan ditulis tanpa titik dan angka desimal ditulis dengan titik
-""")
+@st.cache_data
+def gen_pdf():
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=24)
+    pdf.cell(txt="hello world")
+    return bytes(pdf.output())
 
-tgl = st.date_input('Tanggal Keberangkatan')
-jam = st.time_input('Jam keberangkatan')
-unit = ['Trailer','Tronton']
-option = st.selectbox('Pilih unit: ',unit)
-origin = st.text_input('Origin: ')
-destination = st.text_input('Destination: ')
+# Embed PDF to display it:
+base64_pdf = b64encode(gen_pdf()).decode("utf-8")
+pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="400" type="application/pdf">'
+st.markdown(pdf_display, unsafe_allow_html=True)
 
-jarak = st.number_input('Masukkan jarak: ')
-adj_jarak = math.ceil((5/100 * jarak) + jarak)
-
-if adj_jarak <= 400:
-    KPJ = 35 #km/jam
-elif adj_jarak > 400:
-    KPJ = 50 #km/jam
-
-tol = st.number_input('Biaya tol: ')
-penyebrangan = st.number_input('Biaya penyebrangan: ')
-komisi = st.number_input('Komisi: ')
-helper = st.number_input('Biaya helper: ')
-
-solar = 6800 #per liter
-LooL = 2 #jam
-waktu_tempuh = (adj_jarak/KPJ) + LooL
-
-tph = math.floor(24/waktu_tempuh) #trip per hari
-
-hpt = waktu_tempuh/16
-if hpt <= 0.35:
-    hpt = 0.35
-elif hpt > 0.35:
-    hpt = waktu_tempuh/16
-
-hari = waktu_tempuh/8
-if hari <= 0.35:
-    hari = 0.35
-elif hari > 0.35:
-    hari = waktu_tempuh/8
-
-
-uang_makan = hari * 120000
-st.write(f'uang makan: Rp. {uang_makan}')
-retribusi = math.ceil(hari * 75000)
-
-ritase = hari * 100000
-
-kehadiran = math.ceil(hari * 10000)
-
-
-if option == 'Trailer':
-    fuel = 2.25
-    bongkarmuat = 90000
-elif option == 'Tronton':
-    fuel = 2.7
-    bongkarmuat = 70000
-
-
-bbm = adj_jarak/fuel
-st.write(f'bbm: {math.ceil(bbm)}')
-uang_bbm = bbm * solar
-st.write(f'uang bbm: Rp. {math.ceil(uang_bbm)}')
-
-hitung = st.button('Hitung UJO')
-if hitung:
-    total = uang_bbm + tol + bongkarmuat + uang_makan + retribusi + ritase + kehadiran + komisi + helper + penyebrangan
-    st.success(f'Jadi, total uang jalan operasional yang dibutuhkan adalah Rp. {math.ceil(total)}.')
+# Add a download button:
+st.download_button(
+    label="Download PDF",
+    data=gen_pdf(),
+    file_name="file_name.pdf",
+    mime="application/pdf",
+)
