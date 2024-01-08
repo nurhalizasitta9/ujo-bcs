@@ -1,5 +1,5 @@
 streamlit
 pandas
 python-math
-pybase64
-fpdf
+base64.b64encode
+PyFPDF
