@@ -166,60 +166,47 @@ if authenticate_user():
                 elif rasio > 50:
                     st.warning(f'Rasio antara total UJO dengan tarif adalah {math.ceil(rasio)}%.',icon='⚠️')
             
-            @st.cache_data
-            def gen_pdf():
-                pdf = FPDF()
-                pdf.add_page()
-                
-                pdf.image('bcs.png',w=40,h=10)
+                @st.cache_data
+                def gen_pdf():
+                    pdf = FPDF()
+                    pdf.add_page(orientation='P',format="a5")
+                    
+                    pdf.image('bcs.png',w=40,h=10,)
 
-                pdf.set_font("Arial",size=16)
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
-                pdf.cell(100,10,txt="UANG JALAN OPERASIONAL & TARIF", ln=1,align="C")
+                    pdf.set_font("Arial",size=14)
+                    pdf.cell(100,10,txt=f" ", ln=1,align="C")
+                    pdf.cell(130,10,txt="UANG JALAN OPERASIONAL & TARIF", ln=1,align="C")
 
-                pdf.set_font("Arial",size=12)
-                pdf.cell(100,10,txt=f"{tgl}", ln=2,align="C")
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
-                pdf.cell(100,10,txt=f"Customer: {customer}", ln=1,align="L")
-                pdf.cell(100,10,txt=f"Origin: {origin}",ln=1,align="L")
-                pdf.cell(100,10,txt=f"Destination: {destination}",ln=1,align="L")
-                pdf.cell(100,10,txt=f"Unit: {option}",ln=1,align="L")
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
+                    pdf.set_font("Arial",size=12)
+                    pdf.cell(130,10,txt=f"{tgl}", ln=2,align="C")
+                    pdf.cell(130,10,txt=f"Customer/Unit: {customer}/{option}", ln=1,align="L")
+                    pdf.cell(130,10,txt=f"Origin - Destination: {origin} - {destination}",ln=1,align="L")
+                    pdf.cell(130,10,txt=f" ", ln=1,align="C")
 
-                pdf.cell(100,10,txt=f"Tarif: Rp. {tarif_rp}", ln=2,align="L")
-                if margin>0:
-                    pdf.cell(100,10,txt=f"Tarif dengan margin {margin}%: Rp. {tarifakhir_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Total UJO: Rp. {ujo_rp}", ln=1,align="L")
+                    pdf.cell(130,10,txt=f"Tarif: Rp. {tarif_rp}", ln=2,align="L")
+                    if margin>0:
+                        pdf.cell(130,10,txt=f"Tarif dengan margin {margin}%: Rp. {tarifakhir_rp}", ln=2,align="L")
+                    pdf.cell(130,10,txt=f"Total UJO: Rp. {ujo_rp}", ln=1,align="L")
 
 
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
-                pdf.cell(100,10,txt="Rincian Biaya", ln=1,align="C")
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
-                pdf.cell(100,10,txt=f"Solar: {math.ceil(bbm)} liter", ln=1,align="L")
-                pdf.cell(100,10,txt=f"Uang Solar: Rp. {bbm_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Uang Tol: Rp. {tol_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Bongkar Muat: Rp. {bongkarmuat_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Makan: Rp. {uang_makan_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Retribusi: Rp. {retribusi_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Ritase: Rp. {ritase_rp}", ln=2,align="L")
-                if penyebrangan>0:
-                    pdf.cell(100,10,txt=f"Penyebrangan: Rp. {penyebrangan_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f"Kehadiran: Rp. {kehadiran_rp}", ln=2,align="L")
-                pdf.cell(100,10,txt=f" ", ln=1,align="C")
+                    pdf.cell(130,10,txt=f" ", ln=1,align="C")
+                    pdf.cell(130,10,txt="Rincian Biaya", ln=1,align="C")
+                    pdf.cell(130,10,txt=f"BBM/Biaya BBM: {math.ceil(bbm)} liter/Rp. {bbm_rp}", ln=1,align="L")
+                    pdf.cell(130,10,txt=f"Uang Tol/Bongkat Muat: Rp. {tol_rp}/Rp. {bongkarmuat_rp}", ln=2,align="L")
+                    pdf.cell(130,10,txt=f"Kehadiran/Uang Makan: Rp. {kehadiran_rp}/Rp. {uang_makan_rp}", ln=2,align="L")
+                    pdf.cell(130,10,txt=f"Retribusi/Ritase: Rp. {retribusi_rp}/Rp. {ritase_rp}", ln=2,align="L")
+                    if penyebrangan>0:
+                        pdf.cell(130,10,txt=f"Penyebrangan: Rp. {penyebrangan_rp}", ln=2,align="L")
+                    pdf.cell(130,10,txt=f" ", ln=1,align="C")
 
-                
-                return bytes(pdf.output())
+                    
+                    return bytes(pdf.output())
 
-            base64_pdf = b64encode(gen_pdf()).decode("utf-8")
-            pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="400" type="application/pdf">'
-            st.markdown(pdf_display, unsafe_allow_html=True)
+                base64_pdf = b64encode(gen_pdf()).decode("utf-8")
+                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="400" type="application/pdf">'
+                st.markdown(pdf_display, unsafe_allow_html=True)
 
-            st.download_button(
-                label="Download PDF",
-                data=gen_pdf(),
-                file_name=f"Nota UJO dan Tarif {tgl}",
-                mime="application/pdf",
-            )
+                 
 
             with st.form(key="my_form",clear_on_submit=True):
                 st.write('Pastikan semua data yang diinput sudah benar sebelum di-submit!')
